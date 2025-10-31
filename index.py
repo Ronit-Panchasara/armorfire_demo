@@ -5,7 +5,6 @@ import requests
 import os
 import base64
 import streamlit as st
-from streamlit_lottie import st_lottie
 import time
 import itertools
 
@@ -1710,4 +1709,5 @@ with st.container():
         """,
         unsafe_allow_html=True
     )
+
 
