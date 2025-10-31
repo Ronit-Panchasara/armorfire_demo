@@ -3,7 +3,6 @@ from PIL import Image
 import requests
 import base64
 import streamlit as st
-from streamlit_lottie import st_lottie
 import time
 import os
 import pathlib
