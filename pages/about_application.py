@@ -140,7 +140,7 @@ st.markdown(
 )
 
 pages = {
-    "Home": "/index",
+    "Home": "index",
     "About": "/about_application",  # 👈 Redirects to about_application.py
     "Products & Solutions": "/products",
     "Blog": "/blog",
