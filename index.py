@@ -2,6 +2,7 @@ import re
 # redeploy fix
 from PIL import Image
 import requests
+import os
 import base64
 import streamlit as st
 from streamlit_lottie import st_lottie
@@ -9,6 +10,8 @@ import time
 import itertools
 
 st.set_page_config(page_title="Armorfire", layout="wide", page_icon="https://www.armorfire.in/public/frontend/webp/fav-2.webp")
+
+img_path = os.path.join("img", "hero-bg.jpg")
 
 def load_lottieurl(url):
     r = requests.get(url)
@@ -1707,3 +1710,4 @@ with st.container():
         """,
         unsafe_allow_html=True
     )
+
