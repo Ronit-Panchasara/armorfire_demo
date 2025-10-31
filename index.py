@@ -34,7 +34,7 @@ code_dir = pathlib.Path(__file__).parent.resolve()
 # Construct the image path relative to the script's directory
 # Replace "your_image_folder/your_image.png" with your actual path and file name
 # For example, if your image is in a folder named 'images'
-img_path = code_dir / "images" / "your_image_name.png" 
+img_path = code_dir / "img" / "hero-bg.jpg" 
 
 # Make sure the path is a string for the open() function
 img_path_str = str(img_path)
@@ -1738,6 +1738,7 @@ with st.container():
         """,
         unsafe_allow_html=True
     )
+
 
 
 
