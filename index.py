@@ -53,9 +53,6 @@ except FileNotFoundError as e:
 # File "/mount/src/armorfire_demo/index.py", line 23, in get_base64_of_bin_file
 # with open(image_path, "rb") as f:
 
-# --- Background image ---
-img_path = r"C:/RONIT/Template/interior-design-website-template-free/img/hero-bg.jpg"
-img_base64 = get_base64_of_bin_file(img_path)
 
 # --- Active page ---
 active_page = "Home"
@@ -1738,6 +1735,7 @@ with st.container():
         """,
         unsafe_allow_html=True
     )
+
 
 
 
