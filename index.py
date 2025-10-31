@@ -43,7 +43,6 @@ img_path_str = str(img_path)
 try:
     img_base64 = get_base64_of_bin_file(img_path_str) # Use the absolute path string
     # Rest of your app logic using img_base64
-    st.write("Image loaded successfully!")
 except FileNotFoundError as e:
     st.error(e)
 
@@ -1735,6 +1734,7 @@ with st.container():
         """,
         unsafe_allow_html=True
     )
+
 
 
 
