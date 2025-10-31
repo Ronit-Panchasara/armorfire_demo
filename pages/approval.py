@@ -70,14 +70,6 @@ st.markdown(
         background-repeat: no-repeat;
         background-position: center center;
     }}
-    .block-container {{
-        background-image: url("data:image/jpg;base64,{img_base64}");
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center center;
-        /* Remove any fixed attachment */
-        background-attachment: scroll; 
-    }}
     /* --- Menu styles --- */
     .menu {{
         display: flex;
