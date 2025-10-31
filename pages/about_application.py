@@ -2,6 +2,8 @@ from PIL import Image
 import requests
 import base64
 import streamlit as st
+import os
+import pathlib
 import time
 
 
@@ -14,14 +16,40 @@ def load_lottieurl(url):
     return r.json()
 
 def get_base64_of_bin_file(image_path):
-    """Reads an image file and returns a base64 string."""
+    # Add a check to confirm the file exists
+    if not os.path.exists(image_path):
+        st.error(f"Error: File not found at {image_path}")
+        # Optionally, raise the error or return a default value
+        raise FileNotFoundError(f"File not found: {image_path}") 
     with open(image_path, "rb") as f:
         data = f.read()
-    return base64.b64encode(data).decode()
+    return base64.b64encode(data).decode('utf-8')
 
-# --- Background image ---
-img_path = r"C:/RONIT/Template/interior-design-website-template-free/img/hero-bg.jpg"
-img_base64 = get_base64_of_bin_file(img_path)
+# Dynamically determine the current script's directory
+# This gets the absolute path to the directory containing the current script
+code_dir = pathlib.Path(__file__).parent.resolve()
+
+# Construct the image path relative to the script's directory
+# Replace "your_image_folder/your_image.png" with your actual path and file name
+# For example, if your image is in a folder named 'images'
+img_path = code_dir / "img" / "hero-bg.jpg" 
+
+# Make sure the path is a string for the open() function
+img_path_str = str(img_path)
+
+# Call the function
+try:
+    img_base64 = get_base64_of_bin_file(img_path_str) # Use the absolute path string
+    # Rest of your app logic using img_base64
+except FileNotFoundError as e:
+    st.error(e)
+
+# Original lines from traceback for context
+# File "/mount/src/armorfire_demo/index.py", line 29, in <module>
+# img_base64 = get_base64_of_bin_file(img_path)
+# File "/mount/src/armorfire_demo/index.py", line 23, in get_base64_of_bin_file
+# with open(image_path, "rb") as f:
+
 
 # --- Active page ---
 active_page = "About"
