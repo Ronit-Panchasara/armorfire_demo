@@ -1,4 +1,6 @@
 streamlit
+streamlit.components.v1
 Pillow
 requests
 streamlit-lottie
+
