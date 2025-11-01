@@ -1,15 +1,19 @@
 import re
 # redeploy fix
 from PIL import Image
-import requests
 import os
+import requests
 import base64
 import pathlib
 import streamlit as st
+from streamlit_lottie import st_lottie
+import streamlit.components.v1 as components
 import time
 import itertools
 
 st.set_page_config(page_title="Armorfire", layout="wide", page_icon="https://www.armorfire.in/public/frontend/webp/fav-2.webp")
+
+img_path = os.path.join("img", "hero-bg.jpg")
 
 def load_lottieurl(url):
     r = requests.get(url)
@@ -18,40 +22,22 @@ def load_lottieurl(url):
     return r.json()
 
 def get_base64_of_bin_file(image_path):
-    # Add a check to confirm the file exists
     if not os.path.exists(image_path):
         st.error(f"Error: File not found at {image_path}")
-        # Optionally, raise the error or return a default value
         raise FileNotFoundError(f"File not found: {image_path}") 
     with open(image_path, "rb") as f:
         data = f.read()
     return base64.b64encode(data).decode('utf-8')
-
-# Dynamically determine the current script's directory
-# This gets the absolute path to the directory containing the current script
 code_dir = pathlib.Path(__file__).parent.resolve()
 
-# Construct the image path relative to the script's directory
-# Replace "your_image_folder/your_image.png" with your actual path and file name
-# For example, if your image is in a folder named 'images'
 img_path = code_dir / "img" / "hero-bg.jpg" 
 
-# Make sure the path is a string for the open() function
 img_path_str = str(img_path)
 
-# Call the function
 try:
-    img_base64 = get_base64_of_bin_file(img_path_str) # Use the absolute path string
-    # Rest of your app logic using img_base64
+    img_base64 = get_base64_of_bin_file(img_path_str) 
 except FileNotFoundError as e:
     st.error(e)
-
-# Original lines from traceback for context
-# File "/mount/src/armorfire_demo/index.py", line 29, in <module>
-# img_base64 = get_base64_of_bin_file(img_path)
-# File "/mount/src/armorfire_demo/index.py", line 23, in get_base64_of_bin_file
-# with open(image_path, "rb") as f:
-
 
 # --- Active page ---
 active_page = "Home"
@@ -72,14 +58,6 @@ st.markdown(
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center center;
-    }}
-    .block-container {{
-        background-image: url("data:image/jpg;base64,{img_base64}");
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center center;
-        /* Remove any fixed attachment */
-        background-attachment: scroll; 
     }}
     /* --- Menu styles --- */
     .menu {{
@@ -185,11 +163,220 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- Main header with box ---
-with st.container():
-    left_column, right_column = st.columns(2)
-    with left_column:
-        st.markdown(
+
+slider_html = """
+<style>
+/* Remove Streamlit padding */
+.block-container { padding: 0 !important; margin: 0 !important; }
+
+/* Full-browser-width slider */
+.slider-container {
+  position: relative;
+  border-radius: 15px;
+  width: 100vw;
+  height: 90vh;
+  left: 50%;
+  margin-left: -50vw;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Slides */
+.slides {
+  display: flex;
+  transition: transform 1s ease-in-out;
+  height: 100%;
+}
+.slides img {
+  width: 100vw;
+  height: 90vh;
+  object-fit: cover;
+  display: block;
+}
+
+/* Buttons */
+.button-container {
+  position: absolute;
+  top: 50%;
+  width: 96%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 25px;
+  z-index: 10;
+  pointer-events: none;
+}
+.button {
+  background-color: #0D6C68;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-family: 'Space Grotesk', sans-serif;
+  pointer-events: all;
+}
+.button:hover { background-color: #3d8986; transform: scale(1.08); }
+
+/* Dots */
+.dots {
+  position: absolute;
+  bottom: 24px;            /* slightly up from the very bottom for nicer spacing */
+  width: 100%;
+  text-align: center;
+  z-index: 20;
+}
+.dot {
+  height: 12px;
+  width: 12px;
+  margin: 0 6px;
+  background-color: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.25s, transform 0.2s;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  border: 2px solid rgba(0,0,0,0.08);
+}
+.dot.active {
+  background-color: #0D6C68;
+  transform: scale(1.15);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .slider-container { height: 60vh; }
+  .slides img { height: 60vh; }
+  .button { font-size: 16px; padding: 8px 16px; }
+  .button-container { width: 94%; padding: 0 10px; }
+}
+</style>
+
+<div class="slider-container">
+  <div class="slides" id="slides">
+    <img src="https://www.armorfire.in/public/upload/homebannerimg/3917541188753.jpg" alt="slide1">
+    <img src="https://www.armorfire.in/public/upload/homebannerimg/317541104013.jpg" alt="slide2">
+    <img src="https://www.armorfire.in/public/upload/homebannerimg/8517541103913.jpg" alt="slide3">
+    <!-- clone first for seamless loop -->
+    <img src="https://www.armorfire.in/public/upload/homebannerimg/3917541188753.jpg" alt="clone">
+  </div>
+
+  <div class="button-container">
+    <button class="button" onclick="manualPrev()">⟵</button>
+    <button class="button" onclick="manualNext()">⟶</button>
+  </div>
+
+  <!-- Dots: one dot per real slide -->
+  <div class="dots" id="dots">
+    <span class="dot active" data-index="0"></span>
+    <span class="dot" data-index="1"></span>
+    <span class="dot" data-index="2"></span>
+  </div>
+</div>
+
+<script>
+const slides = document.getElementById('slides');
+const dotEls = document.querySelectorAll('.dot');
+const totalSlidesWithClone = slides.children.length; // includes clone
+const realCount = totalSlidesWithClone - 1;         // real slides count
+let index = 0;
+let autoTimer = null;
+const TRANSITION_DURATION = 1000; // ms, must match CSS transition
+
+// helper: set active dot (based on real slide index)
+function setActiveDot(realIndex) {
+  dotEls.forEach((d, i) => d.classList.toggle('active', i === realIndex));
+}
+
+// move to next slide (right only)
+function nextSlide() {
+  index++;
+  slides.style.transition = 'transform 1s ease-in-out';
+  slides.style.transform = `translateX(-${index * 100}vw)`;
+
+  // update dots for normal slides and the clone (show first dot while on clone)
+  const visibleDot = index % realCount;
+  setActiveDot(visibleDot);
+
+  // if we've moved onto the cloned slide, reset to real first slide (0) after transition
+  if (index === totalSlidesWithClone - 1) {
+    setTimeout(() => {
+      slides.style.transition = 'none';
+      slides.style.transform = 'translateX(0)';
+      index = 0;
+      // ensure dots show first
+      setActiveDot(0);
+      // force reflow then re-enable transition (avoids flash)
+      void slides.offsetWidth;
+      slides.style.transition = 'transform 1s ease-in-out';
+    }, TRANSITION_DURATION);
+  }
+}
+
+// manual navigation handlers
+function manualNext() {
+  // if currently at clone reset instantly to real last slide position before moving
+  if (index === totalSlidesWithClone - 1) {
+    slides.style.transition = 'none';
+    slides.style.transform = `translateX(-0vw)`;
+    index = 0;
+    void slides.offsetWidth;
+    slides.style.transition = 'transform 1s ease-in-out';
+  }
+  nextSlide();
+  resetAuto();
+}
+
+function manualPrev() {
+  // move backward within real slides only
+  // if at 0, jump to last real slide instantly, then animate back one
+  if (index === 0) {
+    slides.style.transition = 'none';
+    slides.style.transform = `translateX(-${(realCount - 1) * 100}vw)`; // show last real
+    index = realCount - 1;
+    void slides.offsetWidth;
+    slides.style.transition = 'transform 1s ease-in-out';
+  } else {
+    index = Math.max(0, index - 1);
+  }
+  slides.style.transform = `translateX(-${index * 100}vw)`;
+  setActiveDot(index % realCount);
+  resetAuto();
+}
+
+// clickable dots: jump to selected real slide
+dotEls.forEach(dot => {
+  dot.addEventListener('click', (e) => {
+    const target = Number(e.currentTarget.getAttribute('data-index'));
+    index = target;
+    slides.style.transition = 'transform 1s ease-in-out';
+    slides.style.transform = `translateX(-${index * 100}vw)`;
+    setActiveDot(target);
+    resetAuto();
+  });
+});
+
+// autoplay
+function startAuto() {
+  autoTimer = setInterval(nextSlide, 3500);
+}
+function resetAuto() {
+  clearInterval(autoTimer);
+  startAuto();
+}
+
+// initialize
+setActiveDot(0);
+startAuto();
+</script>
+"""
+
+components.html(slider_html, height=850, scrolling=False)
+
+# --- Main Header Section Below the Banner ---
+st.markdown(
         """
             <p class="my-title">
                 To <span>Grow & Secure</span><br>
@@ -201,21 +388,7 @@ with st.container():
             """,
             unsafe_allow_html=True
         )
-    with right_column:
-        image_list = [
-            "https://www.armorfire.in/public/upload/homebannerimg/3917541188753.jpg",
-            "https://www.armorfire.in/public/upload/homebannerimg/317541104013.jpg",
-            "https://www.armorfire.in/public/upload/homebannerimg/8517541103913.jpg"
-        ]
-        placeholder = st.empty()  
-        img_cycle = itertools.cycle(image_list)
-        img_url = next(img_cycle)
-        placeholder.image(img_url, use_container_width=True)
-        # while True:
-        #         img_url = next(img_cycle)
-        #         placeholder.image(img_url, use_container_width=True)
-        #         time.sleep(3)
-        #         break
+
 
 # with st.container():
 #     st.markdown("""
@@ -283,6 +456,7 @@ with st.container():
                 color: #0D6C68 !important;
                 font-size: 2.5rem !important;
                 font-weight: 700 !important;
+                margin-top:50px !important;
                 margin-bottom: 10px !important; /* Reduced margin */
                 font-family: 'Space Grotesk', sans-serif !important;
             }
@@ -495,7 +669,7 @@ with st.container():
     with right_column:
         st.markdown("""
             <div class='bhag-text'>
-            “To Become a World Pioneer Brand with ₹5,000 Crore Market Capitalization by 31st March 2045”
+            “ To Become a World Pioneer Brand with ₹5,000 Crore Market Capitalization by 31st March 2045 ”
             <br><br>
             At Armor Fire, we don’t just aim high — we aim beyond. Our BHAG is a bold declaration of our long-term ambition:
             <ul>
@@ -870,17 +1044,17 @@ with st.container():
     st.markdown('<div class="cert-container">', unsafe_allow_html=True)
     c1, c2, c3, c4, c5,c6 = st.columns(6)
     with c1:
-        st.image("https://www.armorfire.in/public/upload/productimg/731756471488.jpg", width=150)
+        st.image("https://www.armorfire.in/public/upload/productimg/731756471488.jpg", width=180)
     with c2:
-        st.image("https://www.armorfire.in/public/upload/productimg/321754397118.jpg", width=150)
+        st.image("https://www.armorfire.in/public/upload/productimg/321754397118.jpg", width=185)
     with c3:
         st.image("https://www.armorfire.in/public/upload/productimg/71754384068.JPG", width=150)
     with c4:
         st.image("https://www.armorfire.in/public/upload/productimg/301704784429.jpg", width=150)
     with c5:
-        st.image("https://www.armorfire.in/public/upload/productimg/871704794017.jpg", width=150)
+        st.image("https://www.armorfire.in/public/upload/productimg/871704794017.jpg", width=165)
     with c6:
-        st.image("https://www.armorfire.in/public/upload/productimg/221704784686.jpg", width=150)
+        st.image("https://www.armorfire.in/public/upload/productimg/221704784686.jpg", width=137)
     st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown(
@@ -1734,10 +1908,3 @@ with st.container():
         """,
         unsafe_allow_html=True
     )
-
-
-
-
-
-
-
